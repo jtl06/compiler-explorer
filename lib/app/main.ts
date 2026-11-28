@@ -45,6 +45,7 @@ import {getStorageTypeByKey} from '../storage/index.js';
 import {initializeCompilationEnvironment} from './compilation-env.js';
 import {setupCompilerChangeHandling} from './compiler-changes.js';
 import {discoverCompilers} from './compiler-discovery.js';
+import {setupEventLoopLagMonitoring} from './config.js';
 import {setupControllersAndHandlers} from './controllers.js';
 import {ApplicationOptions, ApplicationResult} from './main.interfaces.js';
 import {setupRoutesAndApi} from './routes-setup.js';
@@ -176,6 +177,8 @@ export async function initialiseApplication(options: ApplicationOptions): Promis
     if (!appArgs.doCache) {
         logger.info('  with disabled caching');
     }
+
+    setupEventLoopLagMonitoring(ceProps);
 
     if (isExecutionWorker) {
         await initHostSpecialties();

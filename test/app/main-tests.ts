@@ -28,6 +28,7 @@ import express from 'express';
 import request from 'supertest';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
+import {setupEventLoopLagMonitoring} from '../../lib/app/config.js';
 import {initialiseApplication} from '../../lib/app/main.js';
 import * as server from '../../lib/app/server.js';
 import {AppArguments} from '../../lib/app.interfaces.js';
@@ -121,6 +122,7 @@ vi.mock('../../lib/options-handler.js', () => ({
 vi.mock('../../lib/sentry.js');
 vi.mock('../../lib/sponsors.js');
 vi.mock('../../lib/storage/index.js');
+vi.mock('../../lib/app/config.js');
 vi.mock('../../lib/app/server.js');
 vi.mock('node:fs/promises');
 
@@ -309,6 +311,17 @@ describe('Main module', () => {
         });
 
         expect(setupMetricsServer).toHaveBeenCalledWith(9000, undefined);
+    });
+
+    it('should start event loop lag monitoring', async () => {
+        await initialiseApplication({
+            appArgs: mockAppArgs,
+            config: mockConfig as any,
+            distPath: '/test/dist',
+            awsProps: vi.fn() as any,
+        });
+
+        expect(setupEventLoopLagMonitoring).toHaveBeenCalledWith(mockConfig.ceProps);
     });
 
     it('should initialize execution worker if configured', async () => {
